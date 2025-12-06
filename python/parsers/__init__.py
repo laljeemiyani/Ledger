@@ -2,5 +2,6 @@
 
 from .csv_parser import CSVParser
 from .excel_parser import ExcelParser
+from .bank_detector import BankDetector
 
-__all__ = ['CSVParser', 'ExcelParser']
+__all__ = ['CSVParser', 'ExcelParser', 'BankDetector']
