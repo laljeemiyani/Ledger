@@ -62,7 +62,7 @@ class TestCSVParser:
         csv_file.write_text("col1,col2,col3\n")
         
         parser = CSVParser(str(csv_file))
-        with pytest.raises(ValueError, match="CSV has no data rows"):
+        with pytest.raises(ValueError, match="CSV file is empty"):
             parser.validate_structure()
     
     def test_validate_insufficient_columns(self, tmp_path):
@@ -77,7 +77,7 @@ class TestCSVParser:
     def test_detect_columns(self, tmp_path):
         """Test column detection for bank statement CSV."""
         csv_file = tmp_path / "statement.csv"
-        csv_file.write_text("Date,Description,Debit,Credit,Balance\n2024-01-01,Test,100,,1900")
+        csv_file.write_text("Date,Description,Debit,Credit,Balance\n2024-01-01,Test,100,,1900\n2024-01-02,Test2,,200,1700")
         
         parser = CSVParser(str(csv_file))
         df = parser.parse()
