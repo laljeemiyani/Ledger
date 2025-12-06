@@ -11,14 +11,33 @@ function App() {
     setSelectedFiles(files)
   }
 
-  const handleProcess = () => {
+  const handleProcess = async () => {
     if (selectedFiles.length === 0) return
     setProcessing(true)
-    // Simulate processing
-    setTimeout(() => {
+    
+    try {
+      if (window.electronAPI) {
+        const filePaths = selectedFiles.map(f => f.path)
+        const result = await window.electronAPI.processFiles(filePaths)
+        console.log("Processing result:", result)
+        if (result.success) {
+          alert(`Successfully processed ${result.data?.length || 0} files!`)
+        } else {
+          alert("Error processing files: " + (result.message || "Unknown error"))
+        }
+      } else {
+        // Fallback for browser-only dev (mock)
+        console.warn("Electron API not available. Running in mock mode.")
+        setTimeout(() => {
+          alert(`[MOCK] Processed ${selectedFiles.length} files!`)
+        }, 1000)
+      }
+    } catch (error) {
+      console.error("Processing failed:", error)
+      alert("Processing failed. See console for details.")
+    } finally {
       setProcessing(false)
-      alert(`Processed ${selectedFiles.length} files!`)
-    }, 2000)
+    }
   }
 
   return (

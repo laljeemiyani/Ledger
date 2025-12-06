@@ -1,9 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
+import { spawn } from 'child_process';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Helper for ESM (since package.json is type: module)
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -59,6 +56,46 @@ app.on('activate', () => {
 // IPC Handlers
 ipcMain.handle('process-files', async (event, filePaths: string[]) => {
   console.log('Processing files:', filePaths);
-  // TODO: Implement Python shell integration here
-  return { success: true, message: 'Files received by backend' };
+  
+  return new Promise((resolve, reject) => {
+    // Determine paths based on environment
+    // In dev: process.cwd() is likely the frontend folder or project root depending on how it's run
+    // Using relative paths from __dirname is safer if structure is fixed
+    
+    // Path to python exe
+    const pythonPath = path.resolve(__dirname, '../../../venv/Scripts/python.exe');
+    // Path to cli script
+    const scriptPath = path.resolve(__dirname, '../../../python/cli.py');
+    
+    console.log('Python Path:', pythonPath);
+    console.log('Script Path:', scriptPath);
+    
+    const pythonProcess = spawn(pythonPath, [scriptPath, ...filePaths]);
+    
+    let resultData = '';
+    let errorData = '';
+    
+    pythonProcess.stdout.on('data', (data) => {
+      resultData += data.toString();
+    });
+    
+    pythonProcess.stderr.on('data', (data) => {
+      errorData += data.toString();
+      console.error(`Python Error: ${data}`);
+    });
+    
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`Python process exited with code ${code}. Error: ${errorData}`));
+        return;
+      }
+      
+      try {
+        const jsonResult = JSON.parse(resultData);
+        resolve({ success: true, data: jsonResult });
+      } catch (e) {
+        reject(new Error(`Failed to parse Python output: ${e}. Raw output: ${resultData}`));
+      }
+    });
+  });
 });
