@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "dist-electron",
+    "rootDir": ".",
+    "lib": ["ESNext"],
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["main.ts", "preload.ts"]
+}
