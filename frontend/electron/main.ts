@@ -1,6 +1,7 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import { spawn } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -70,7 +71,8 @@ ipcMain.handle('process-files', async (event, filePaths: string[]) => {
     console.log('Python Path:', pythonPath);
     console.log('Script Path:', scriptPath);
     
-    const pythonProcess = spawn(pythonPath, [scriptPath, ...filePaths]);
+    // Call: python cli.py process file1 file2 ...
+    const pythonProcess = spawn(pythonPath, [scriptPath, 'process', ...filePaths]);
     
     let resultData = '';
     let errorData = '';
@@ -102,6 +104,63 @@ ipcMain.handle('process-files', async (event, filePaths: string[]) => {
 
 ipcMain.handle('export-transactions', async (event, transactions: any[], format: string) => {
   console.log(`Exporting ${transactions.length} transactions as ${format}`);
-  // TODO: Implement export using Python backend
-  return { success: true, message: `Export to ${format} successful (Mock)` };
+  
+  if (!mainWindow) return { success: false, message: "No active window" };
+  
+  const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+    title: 'Export Transactions',
+    defaultPath: `export_${new Date().toISOString().split('T')[0]}.xml`,
+    filters: [{ name: 'XML Files', extensions: ['xml'] }]
+  });
+  
+  if (canceled || !filePath) {
+    return { success: false, message: "Export cancelled" };
+  }
+  
+  return new Promise((resolve, reject) => {
+    const pythonPath = path.resolve(__dirname, '../../../venv/Scripts/python.exe');
+    const scriptPath = path.resolve(__dirname, '../../../python/cli.py');
+    
+    // Call: python cli.py export --format tally-xml
+    const pythonProcess = spawn(pythonPath, [scriptPath, 'export', '--format', format]);
+    
+    let resultData = '';
+    let errorData = '';
+    
+    pythonProcess.stdout.on('data', (data) => {
+      resultData += data.toString();
+    });
+    
+    pythonProcess.stderr.on('data', (data) => {
+      errorData += data.toString();
+      console.error(`Python Export Error: ${data}`);
+    });
+    
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(`Python export process exited with code ${code}. Error: ${errorData}`));
+        return;
+      }
+      
+      try {
+        const jsonResult = JSON.parse(resultData);
+        if (jsonResult.success) {
+          const xmlContent = jsonResult.content;
+          
+          // Write to file
+          fs.writeFileSync(filePath, xmlContent, 'utf-8');
+          
+          resolve({ success: true, message: `Export saved to ${filePath}` });
+        } else {
+           resolve({ success: false, message: jsonResult.message });
+        }
+      } catch (e) {
+        reject(new Error(`Failed to parse Python export output: ${e}. Raw output: ${resultData}`));
+      }
+    });
+    
+    // Send Input Data via Stdin
+    pythonProcess.stdin.write(JSON.stringify(transactions));
+    pythonProcess.stdin.end();
+  });
 });
