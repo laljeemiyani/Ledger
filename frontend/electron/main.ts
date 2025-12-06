@@ -99,3 +99,9 @@ ipcMain.handle('process-files', async (event, filePaths: string[]) => {
     });
   });
 });
+
+ipcMain.handle('export-transactions', async (event, transactions: any[], format: string) => {
+  console.log(`Exporting ${transactions.length} transactions as ${format}`);
+  // TODO: Implement export using Python backend
+  return { success: true, message: `Export to ${format} successful (Mock)` };
+});

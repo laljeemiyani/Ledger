@@ -97,7 +97,19 @@ function App() {
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                <div className="flex items-center justify-between">
                  <h2 className="text-2xl font-bold tracking-tight">Review Data</h2>
-                 <Button variant="outline" onClick={() => setResults([])}>Clear Results</Button>
+                 <div className="flex space-x-2">
+                   <Button variant="outline" onClick={() => setResults([])}>Clear Results</Button>
+                   <Button onClick={async () => {
+                     if (window.electronAPI) {
+                       const res = await window.electronAPI.exportTransactions(allTransactions, 'tally-xml')
+                       alert(res.message)
+                     } else {
+                       alert("Mock Export Successful")
+                     }
+                   }}>
+                     Export to Tally XML
+                   </Button>
+                 </div>
                </div>
                
                {/* Summary Stats or File List could go here */}

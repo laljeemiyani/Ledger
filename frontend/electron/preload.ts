@@ -4,6 +4,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 // the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld('electronAPI', {
   processFiles: (files: string[]) => ipcRenderer.invoke('process-files', files),
+  exportTransactions: (transactions: any[], format: string) => ipcRenderer.invoke('export-transactions', transactions, format),
 });
 
 // Type definition for usage in renderer
