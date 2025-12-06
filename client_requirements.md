@@ -12,9 +12,7 @@ This document outlines the functional and non-functional requirements for a free
 
 ## 👤 Client Profile
 
-**Name**: Your Brother  
-**Current Solution**: Repotic (Paid Service)  
-**Pain Points**:
+**Name**: Your Brother**Current Solution**: Repotic (Paid Service)**Pain Points**:
 
 - Limited conversions per month
 - Subscription costs adding up
@@ -29,27 +27,27 @@ This document outlines the functional and non-functional requirements for a free
 
 ### BR-1: Cost Elimination
 
-**Priority**: Critical  
+**Priority**: Critical
 **Description**: The solution must be completely free with no usage limits, eliminating the need for paid services like Repotic.
 
 ### BR-2: Unlimited Conversions
 
-**Priority**: Critical  
+**Priority**: Critical
 **Description**: Users should be able to convert unlimited number of bank statements without any restrictions or quotas.
 
 ### BR-3: Time Savings
 
-**Priority**: High  
+**Priority**: High
 **Description**: Reduce the time spent on manual data entry from hours to minutes.
 
 ### BR-4: Accuracy Improvement
 
-**Priority**: High  
+**Priority**: High
 **Description**: Minimize human errors in data entry through automated extraction with 95%+ accuracy.
 
 ### BR-5: Multiple Bank Support
 
-**Priority**: High  
+**Priority**: High
 **Description**: Support bank statements from all major Indian banks without requiring separate configurations.
 
 ---
@@ -512,9 +510,9 @@ The application will be considered acceptable when:
 
 ## 📞 Client Sign-off
 
-**Prepared By**: Developer (You)  
-**Reviewed By**: Client (Your Brother)  
-**Date**: December 2025  
+**Prepared By**: Developer (You)
+**Reviewed By**: Client (Your Brother)
+**Date**: December 2025
 **Status**: Pending Approval
 
 **Notes**: This document should be reviewed with the client to ensure all requirements are captured accurately. Any additional requirements should be documented in addendum.
